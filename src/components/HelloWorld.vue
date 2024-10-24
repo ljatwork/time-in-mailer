@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import {
   checkInSubjects,
   signOutSubjects,
@@ -77,7 +77,6 @@ import {
   FridaysignOutBodies,
   signature,
 } from "@/utils/mailBody";
-
 const signInSubject = ref("");
 const signInBody = ref("");
 const signInSignature = ref("");
@@ -86,6 +85,15 @@ const signOutBody = ref("");
 const signOutSignature = ref("");
 const soSendBtnDisabled = ref(true);
 const siSendBtnDisabled = ref(true);
+const mailTo = ref("");
+const ccTo = ref("");
+
+onMounted(() => {
+  const localMalto = localStorage.getItem("mailTo");
+  const localCC = localStorage.getItem("ccTo");
+  mailTo.value = localMalto ?? "";
+  ccTo.value = localCC ?? "";
+});
 
 const generateSignInEmail = () => {
   const today = new Date().getDay();
@@ -128,15 +136,13 @@ const openOutlookEmail = (signIn: boolean = true) => {
   let subject = signInSubject.value;
   if (!signIn) {
     mailBody = `${signOutBody.value}\n\n${signOutSignature.value}`;
-    subject = signOutSignature.value;
+    subject = signOutSubject.value;
   }
   const mailToLink = `mailto:${encodeURIComponent(
-    "masashi_yoritsune@jtekt.co.jp"
-  )}?cc=${encodeURIComponent(
-    "yusuke_okubo@jtekt.co.jp"
-  )}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
-    mailBody
-  )}`;
+    mailTo.value
+  )}?cc=${encodeURIComponent(ccTo.value)}&subject=${encodeURIComponent(
+    subject
+  )}&body=${encodeURIComponent(mailBody)}`;
   window.location.href = mailToLink;
 };
 </script>
